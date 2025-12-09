@@ -1,1 +1,290 @@
-console.log("Portfólio carregado com sucesso");
+// Espera o DOM carregar completamente
+document.addEventListener('DOMContentLoaded', () => {
+  // Atualiza o ano no footer
+  updateCurrentYear();
+  
+  // Anima o texto do hero com efeito de digitação
+  animateHeroText();
+  
+  // Adiciona animação de scroll suave aos links internos
+  setupSmoothScroll();
+  
+  // Adiciona observador de interseção para animações
+  setupIntersectionObserver();
+});
+
+/**
+ * Atualiza o ano atual no footer
+ */
+function updateCurrentYear() {
+  const yearElement = document.getElementById('current-year');
+  if (yearElement) {
+    yearElement.textContent = new Date().getFullYear();
+  }
+}
+
+/**
+ * Anima o texto principal do hero com efeito palavra por palavra
+ */
+function animateHeroText() {
+  const text = `Analista de Dados com formação em Análise e Desenvolvimento de Sistemas e experiência prática em criação de dashboards, automação de relatórios e construção de indicadores de desempenho. Atuei em ambientes operacionais e industriais, com foco em melhoria de processos, confiabilidade de dados e suporte à tomada de decisão.`;
+  
+  const animatedTextElement = document.getElementById('animated-text');
+  if (!animatedTextElement) return;
+  
+  const words = text.split(' ');
+  let wordElements = [];
+  
+  // Cria os elementos de palavra
+  words.forEach((word, index) => {
+    const span = document.createElement('span');
+    span.className = 'word';
+    span.textContent = word + ' ';
+    animatedTextElement.appendChild(span);
+    wordElements.push(span);
+  });
+  
+  // Anima cada palavra com delay
+  let delay = 100;
+  wordElements.forEach((element, index) => {
+    setTimeout(() => {
+      element.classList.add('visible');
+    }, delay + (index * 40));
+  });
+}
+
+/**
+ * Configura scroll suave para links internos
+ */
+function setupSmoothScroll() {
+  document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function (e) {
+      e.preventDefault();
+      const target = document.querySelector(this.getAttribute('href'));
+      
+      if (target) {
+        target.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start'
+        });
+      }
+    });
+  });
+}
+
+/**
+ * Configura Intersection Observer para animações ao fazer scroll
+ */
+function setupIntersectionObserver() {
+  const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -100px 0px'
+  };
+  
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        // Para de observar após a animação
+        observer.unobserve(entry.target);
+      }
+    });
+  }, observerOptions);
+  
+  // Observa os elementos que devem ser animados
+  const animatedElements = document.querySelectorAll('.skill-item, .experience-item, .project, .education-item');
+  animatedElements.forEach(el => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(30px)';
+    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    observer.observe(el);
+  });
+  
+  // Adiciona classe visible quando o elemento entra na viewport
+  const style = document.createElement('style');
+  style.textContent = `
+    .skill-item.visible,
+    .experience-item.visible,
+    .project.visible,
+    .education-item.visible {
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+/**
+ * Adiciona efeito parallax suave ao hero (opcional)
+ */
+function setupParallaxEffect() {
+  window.addEventListener('scroll', () => {
+    const scrolled = window.pageYOffset;
+    const hero = document.querySelector('.hero-image');
+    
+    if (hero && scrolled < window.innerHeight) {
+      hero.style.transform = `translateY(${scrolled * 0.3}px)`;
+    }
+  });
+}
+
+// Descomenta a linha abaixo se quiser ativar o efeito parallax
+// setupParallaxEffect();
+
+/**
+ * Adiciona indicador de loading para as imagens dos projetos
+ */
+function setupProjectImageLoading() {
+  const projectImages = document.querySelectorAll('.project-img');
+  
+  projectImages.forEach(img => {
+    img.style.position = 'relative';
+    
+    // Adiciona um loader antes da imagem carregar
+    const loader = document.createElement('div');
+    loader.style.cssText = `
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #00d9ff;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    `;
+    
+    // Adiciona animação de loading
+    if (!document.querySelector('#loader-animation')) {
+      const style = document.createElement('style');
+      style.id = 'loader-animation';
+      style.textContent = `
+        @keyframes spin {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    }
+    
+    img.appendChild(loader);
+    
+    // Remove o loader quando a imagem carregar (simula delay)
+    setTimeout(() => {
+      loader.remove();
+    }, 1000);
+  });
+}
+
+// Chama a função de loading das imagens
+setupProjectImageLoading();
+
+/**
+ * Adiciona contador de scroll para botão "voltar ao topo" (opcional)
+ */
+function setupScrollToTop() {
+  const scrollButton = document.createElement('button');
+  scrollButton.innerHTML = '↑';
+  scrollButton.className = 'scroll-to-top';
+  scrollButton.style.cssText = `
+    position: fixed;
+    bottom: 2rem;
+    right: 2rem;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00d9ff, #00a8cc);
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 217, 255, 0.3);
+    z-index: 1000;
+  `;
+  
+  document.body.appendChild(scrollButton);
+  
+  // Mostra/esconde o botão baseado no scroll
+  window.addEventListener('scroll', () => {
+    if (window.pageYOffset > 300) {
+      scrollButton.style.opacity = '1';
+      scrollButton.style.pointerEvents = 'auto';
+    } else {
+      scrollButton.style.opacity = '0';
+      scrollButton.style.pointerEvents = 'none';
+    }
+  });
+  
+  // Adiciona funcionalidade de scroll ao topo
+  scrollButton.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
+  
+  // Adiciona efeito hover
+  scrollButton.addEventListener('mouseenter', () => {
+    scrollButton.style.transform = 'scale(1.1) translateY(-3px)';
+  });
+  
+  scrollButton.addEventListener('mouseleave', () => {
+    scrollButton.style.transform = 'scale(1) translateY(0)';
+  });
+}
+
+// Descomenta a linha abaixo se quiser ativar o botão "voltar ao topo"
+setupScrollToTop();
+
+/**
+ * Adiciona cursor customizado (opcional - efeito visual extra)
+ */
+function setupCustomCursor() {
+  const cursor = document.createElement('div');
+  cursor.className = 'custom-cursor';
+  cursor.style.cssText = `
+    position: fixed;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #00d9ff;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+    display: none;
+  `;
+  
+  document.body.appendChild(cursor);
+  
+  // Só ativa em desktop
+  if (window.innerWidth > 768) {
+    cursor.style.display = 'block';
+    
+    document.addEventListener('mousemove', (e) => {
+      cursor.style.left = e.clientX - 10 + 'px';
+      cursor.style.top = e.clientY - 10 + 'px';
+    });
+    
+    // Aumenta o cursor ao passar sobre links e botões
+    document.querySelectorAll('a, button').forEach(element => {
+      element.addEventListener('mouseenter', () => {
+        cursor.style.transform = 'scale(1.5)';
+        cursor.style.background = 'rgba(0, 217, 255, 0.2)';
+      });
+      
+      element.addEventListener('mouseleave', () => {
+        cursor.style.transform = 'scale(1)';
+        cursor.style.background = 'transparent';
+      });
+    });
+  }
+}
+
+// Descomenta a linha abaixo se quiser ativar o cursor customizado
+// setupCustomCursor();
+
+console.log('🚀 Portfólio de Cauã Freitas Caribe carregado com sucesso!');
